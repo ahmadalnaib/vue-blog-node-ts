@@ -5,7 +5,7 @@ import { TimelinePost, today, thisWeek, thisMonth } from '../posts';
 import TimelineItem from './TimelineItem.vue';
 import { usePosts } from '../stores/posts';
 
-const postsStore=usePosts();
+const postsStore = usePosts();
 
 const periods = ['Today', 'This week', 'This month'] as const;
 
@@ -17,8 +17,12 @@ const selectPeriod = (period: Period) => {
 };
 
 const posts = computed<TimelinePost[]>(() => {
-  return [today, thisWeek, thisMonth]
-    .map((post) => {
+  return postsStore.ids
+    .map((id) => {
+      const post = postsStore.all.get(id);
+      if (!post) {
+        throw new Error(`Post with id ${id} not found`);
+      }
       return {
         ...post,
         created: DateTime.fromISO(post.created),
@@ -37,8 +41,6 @@ const posts = computed<TimelinePost[]>(() => {
 </script>
 
 <template>
-  {{ postsStore.foo }}
-  <button @click="postsStore.updateFoo('dfs')">chnage</button>
   <nav class="bg-white shadow-md text-center py-4 mb-5">
     <span class="text-blue-500">
       <a
@@ -53,5 +55,5 @@ const posts = computed<TimelinePost[]>(() => {
       >
     </span>
   </nav>
-<TimelineItem v-for="post in posts" :key="post.title" :post="post" />
+  <TimelineItem v-for="post in posts" :key="post.title" :post="post" />
 </template>
