@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { DateTime } from 'luxon';
 import { ref, computed } from 'vue';
-import { Post, today, thisWeek, thisMonth } from '../posts';
+import { TimelinePost, today, thisWeek, thisMonth } from '../posts';
+import TimelineItem from './TimelineItem.vue';
 
 const periods = ['Today', 'This week', 'This month'] as const;
 
@@ -12,7 +13,7 @@ const selectPeriod = (period: Period) => {
   selectedPeriod.value = period;
 };
 
-const posts = computed(() => {
+const posts = computed<TimelinePost[]>(() => {
   return [today, thisWeek, thisMonth]
     .map((post) => {
       return {
@@ -47,8 +48,5 @@ const posts = computed(() => {
       >
     </span>
   </nav>
-  <a class="flex" v-for="post in posts" :key="post.id">
-    <a class="text-blue-700 mx-3">{{ post.title }} </a>
-    <div>{{ post.created.toFormat('d MMM') }}</div>
-  </a>
+<TimelineItem v-for="post in posts" :key="post.title" :post="post" />
 </template>
