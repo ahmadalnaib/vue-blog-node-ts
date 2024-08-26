@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-const periods = ref(['Today', 'This week', 'This month']);
 
-const selectedPeriod = ref('Today');
-const selectPeriod = (period: string) => {
+
+const periods = ['Today', 'This week', 'This month'] as const;
+
+type Period = typeof periods[number];
+
+const selectedPeriod = ref<Period>('Today');
+const selectPeriod = (period: Period) => {
   selectedPeriod.value = period;
 };
 </script>
