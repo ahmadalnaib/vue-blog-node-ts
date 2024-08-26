@@ -1,28 +1,35 @@
 <script setup lang="ts">
 import { DateTime } from 'luxon';
-import { ref } from 'vue';
-import {Post,today,thisWeek,thisMonth} from '../posts'
-
+import { ref, computed } from 'vue';
+import { Post, today, thisWeek, thisMonth } from '../posts';
 
 const periods = ['Today', 'This week', 'This month'] as const;
 
-type Period = typeof periods[number];
+type Period = (typeof periods)[number];
 
 const selectedPeriod = ref<Period>('Today');
 const selectPeriod = (period: Period) => {
   selectedPeriod.value = period;
 };
 
-const posts=[
-  today,
-  thisWeek,
-  thisMonth
-].map(post =>{
-  return {
-    ...post,
-    created:DateTime.fromISO(post.created)
-  }
-})
+const posts = computed(() => {
+  return [today, thisWeek, thisMonth]
+    .map((post) => {
+      return {
+        ...post,
+        created: DateTime.fromISO(post.created),
+      };
+    })
+    .filter((post) => {
+      if (selectedPeriod.value === 'Today') {
+        return post.created >= DateTime.now().minus({ days: 1 });
+      }
+      if (selectedPeriod.value === 'This week') {
+        return post.created >= DateTime.now().minus({ week: 1 });
+      }
+      return post;
+    });
+});
 </script>
 
 <template>
@@ -30,7 +37,9 @@ const posts=[
     <span class="text-blue-500">
       <a
         class="mx-5"
-         :class="{ 'bg-blue-100 text-blue-700 p-2 rounded-md': selectedPeriod === period }"
+        :class="{
+          'bg-blue-100 text-blue-700 p-2 rounded-md': selectedPeriod === period,
+        }"
         v-for="period in periods"
         :key="period"
         @click="selectPeriod(period)"
@@ -38,8 +47,8 @@ const posts=[
       >
     </span>
   </nav>
-  <a class="flex"  v-for="post in posts" :key="post.id">
+  <a class="flex" v-for="post in posts" :key="post.id">
     <a class="text-blue-700 mx-3">{{ post.title }} </a>
-  <div>{{ post.created.toFormat("d MMM") }}</div>
-</a>
+    <div>{{ post.created.toFormat('d MMM') }}</div>
+  </a>
 </template>
